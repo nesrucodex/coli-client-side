@@ -1,0 +1,23 @@
+/* For froala */
+.fr-element {
+  @apply outline-none border-b-2
+    text-slate-700 border-b-slate-200 transition-all duration-200 hover:border-blue-200 focus:border-blue-400 px-2 py-2 rounded-sm bg-white;
+}
+.fr-second-toolbar {
+  display: none;
+}
+
+.fr-box.fr-basic.fr-top .fr-wrapper::-webkit-scrollbar {
+  width: 0.3rem;
+}
+.fr-box.fr-basic.fr-top .fr-wrapper::-webkit-scrollbar-track {
+  @apply bg-gray-100;
+}
+.fr-box.fr-basic.fr-top .fr-wrapper::-webkit-scrollbar-thumb {
+  @apply bg-gray-300;
+}
+
+.fr-toolbar.fr-top {
+  @apply bg-gray-100;
+  border-radius: 0.2rem;
+}
