@@ -49,7 +49,7 @@ const Input = ({
         id={id}
         className={`outline-none border-b-2 ${
           borderBottomColor ||
-          " border-b-slate-200 transition-all duration-200 hover:border-blue-200 focus:border-blue-400 "
+          " border-b-slate-200 transition-all duration-200 hover:border-slate-200 focus:border-slate-400 "
         } text-slate-700  px-2 py-2 rounded-sm bg-gray-100`}
       />
       {type === "password" && (

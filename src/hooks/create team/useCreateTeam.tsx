@@ -3,7 +3,6 @@ import { useReducer } from "react";
 export const enum CreateTeamActions {
   SET_NAME,
   SET_PROFILE,
-  SET_BIO,
   SET_DESCRIPTION,
   SET_ERROR,
   CLEAR_DATA,
@@ -12,7 +11,7 @@ export const enum CreateTeamActions {
 type ITeam = {
   name: string;
   profile: File | null;
-  bio: string;
+ 
   description: string;
   error: {
     type: CreateTeamActions | undefined;
@@ -22,7 +21,7 @@ type ITeam = {
 const initial: ITeam = {
   name: "",
   profile: null,
-  bio: "",
+ 
   description: "",
   error: {
     type: undefined,
@@ -48,10 +47,6 @@ const reducer = (
       if (typeof profile !== "object") return state;
       return { ...state, profile };
 
-    case CreateTeamActions.SET_BIO:
-      const bio = action.payload;
-      if (typeof bio !== "string") return state;
-      return { ...state, bio };
     case CreateTeamActions.SET_DESCRIPTION:
       const description = action.payload;
       if (typeof description !== "string") return state;

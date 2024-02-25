@@ -6,7 +6,7 @@ import Hline from "../Hline";
 import useCreateTeam, {
   CreateTeamActions,
 } from "../../hooks/create team/useCreateTeam";
-import BasicEditor from "../Froala/BasicEditor";
+import AdvancedEditor from "../Froala/AdvancedEditor";
 import InputLabel from "../InputLabel";
 import axios, { AxiosError } from "axios";
 import { ITeam } from "../../types/global";
@@ -23,7 +23,7 @@ const TeamCreator = ({
 }: ITeamCreator) => {
   const nameId = useId();
   const profileId = useId();
-  const bioId = useId();
+
   const { teamState, teamDispatch } = useCreateTeam();
 
   const CreateTeamHandler = async (e: FormEvent<HTMLFormElement>) => {
@@ -34,7 +34,7 @@ const TeamCreator = ({
         type: CreateTeamActions.SET_ERROR,
         payload: {
           type: CreateTeamActions.SET_NAME,
-          message: "Group name is required",
+          message: "Team name is required",
         },
       });
     }
@@ -43,7 +43,6 @@ const TeamCreator = ({
     formData.append("name", teamState.name);
     formData.append("profile", teamState.profile);
 
-    formData.append("bio", teamState.bio);
     formData.append("description", teamState.description);
 
     try {
@@ -74,7 +73,7 @@ const TeamCreator = ({
         y: showTeamCreator ? "0" : "-60rem",
       }}
       transition={{ duration: 1 }}
-      className="absolute z-[9999] min-w-[10rem] w-[90%] max-w-[40rem] left-1/2 top-[1rem]"
+      className="absolute z-[9999] min-w-[10rem] w-[90%] max-w-[40rem] left-1/2 top-[.5rem]"
       onClick={(e: MouseEvent) => e.stopPropagation()}
     >
       <div className="lato-regular bg-white rounded-sm border-2 border-gray-200 flex flex-col">
@@ -83,7 +82,7 @@ const TeamCreator = ({
         </h2>
         <Hline z="999" mb="1rem" ml="1rem" lf=".2rem" w="5.4rem" h=".2rem" />
         <form
-          className="px-6 pb-4 flex flex-col gap-2 h-[76vh] overflow-x-hidden overflow-y-scroll scroll-bar-none"
+          className="px-6 pb-4 flex flex-col gap-4 h-[84vh] overflow-x-hidden overflow-y-scroll scroll-bar-none"
           onSubmit={CreateTeamHandler}
         >
           <Input
@@ -91,7 +90,7 @@ const TeamCreator = ({
             labelText={
               teamState.error.type === CreateTeamActions.SET_NAME
                 ? teamState.error.message
-                : "Group name"
+                : "Team name"
             }
             color={
               teamState.error.type === CreateTeamActions.SET_NAME ? "red" : ""
@@ -119,7 +118,7 @@ const TeamCreator = ({
           />
           <ImageUploader
             id={profileId}
-            labelText="Upload group profile image [Optional]"
+            labelText="Upload team profile image [Optional]"
             initial={teamState.profile}
             imageUploadHandler={(file: File) =>
               teamDispatch({
@@ -128,17 +127,10 @@ const TeamCreator = ({
               })
             }
           />
-          <Input
-            id={bioId}
-            labelText="Bio [Optional]"
-            initial={teamState.bio}
-            onInputChangeHandler={(value) =>
-              teamDispatch({ type: CreateTeamActions.SET_BIO, payload: value })
-            }
-          />
+
           <div>
             <InputLabel id="" labelText="Description [Optional]" />
-            <BasicEditor
+            <AdvancedEditor
               hMin={100}
               hMax={200}
               initial={teamState.description}
@@ -153,7 +145,7 @@ const TeamCreator = ({
 
           <div className="flex justify-end gap-4 mt-8">
             <button
-              className="font-semibold bg-red-200 text-red-500 text-md px-6 py-2 rounded-md transition-all duration-200 hover:bg-red-100 active:bg-red-200 cursor-pointer"
+              className="font-semibold bg-red-100 text-red-500 text-md px-6 py-2 rounded-md transition-all duration-200 hover:bg-red-100/90 active:bg-red-100 cursor-pointer tracking-wide"
               type="reset"
               onClick={() => {
                 teamDispatch({
@@ -166,7 +158,7 @@ const TeamCreator = ({
               Cancel
             </button>
             <button
-              className="font-semibold bg-blue-200 text-blue-500 text-md px-6 py-2 rounded-md transition-all duration-200 hover:bg-blue-100 active:bg-blue-200 cursor-pointer"
+              className="font-semibold bg-slate-600 text-white text-md px-6 py-2 rounded-md transition-all duration-200 hover:bg-slate-600/95 active:bg-slate-600 cursor-pointer tracking-wide"
               type="submit"
             >
               Create

@@ -51,8 +51,8 @@ const ImageUploader = ({
         <div className="absolute top-0 right-0 size-[5rem]">
           <img
             src={image.src}
-            className="w-full aspect-[1/1] rounded-full object-cover ring-4 ring-red-400 ring-offset-[.15rem] border-[.1rem] border-slate-800"
-            alt="group profile"
+            className="w-full aspect-[1/1] rounded-full object-cover ring-4 ring-slate-600 ring-offset-[.15rem] border-[.1rem]"
+            alt="profile"
           />
         </div>
       )}

@@ -2,24 +2,27 @@ import { FormEvent, useId, useReducer, useState } from "react";
 import Input from "../components/Input";
 import { FaGoogle } from "react-icons/fa";
 import { NavLink, Navigate } from "react-router-dom";
-import AvatorPicker from "../components/AvatorPicker";
+
 import { ASYNC_STATE, IUser } from "../types/global";
-import { AVATORS } from "../constants/data";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "../hooks/user.slice";
 import axios, { AxiosError } from "axios";
 import { RootState } from "../hooks/store";
+import ImageUploader from "../components/ImageUploader";
 
-interface IError {
-  type: SignUpActions | undefined;
-  message: string;
-  status: boolean;
+class SignUpError {
+  constructor(
+    public type: SignUpActions | undefined,
+    public message: string,
+    public status: boolean
+  ) {}
 }
 
-type ISignUpUser = Omit<IUser, "_id"> & {
+type ISignUpUser = Omit<IUser, "_id" | "profile"> & {
+  profile: null | File;
   password: string;
   confirmPassword: string;
-  error: IError;
+  error: SignUpError;
 };
 
 enum SignUpActions {
@@ -34,7 +37,7 @@ enum SignUpActions {
 const initial: ISignUpUser = {
   name: "",
   email: "",
-  profile: AVATORS[0].avator,
+  profile: null,
   password: "",
   confirmPassword: "",
   error: { type: undefined, message: "", status: false },
@@ -44,7 +47,7 @@ const reducer = (
   state: ISignUpUser,
   action: {
     type: SignUpActions;
-    payload: string | IError;
+    payload: string | SignUpError | File;
   }
 ) => {
   const { type } = action;
@@ -66,10 +69,9 @@ const reducer = (
     }
     case SignUpActions.SET_PROFILE: {
       const { payload } = action;
-      if (typeof payload !== "string") return state;
-
       const profile = payload;
-      return { ...state, profile };
+      if (profile instanceof File) return { ...state, profile };
+      return state;
     }
     case SignUpActions.SET_PASSWORD: {
       const { payload } = action;
@@ -89,10 +91,10 @@ const reducer = (
 
     case SignUpActions.SET_ERROR: {
       const { payload } = action;
-      if (typeof payload === "string") return state;
-
       const error = payload;
-      return { ...state, error };
+      if (error instanceof SignUpError) return { ...state, error };
+
+      return state;
     }
 
     default:
@@ -118,64 +120,76 @@ const SignUp = () => {
     e.preventDefault();
 
     const { name, email, profile, password, confirmPassword } = state;
+    console.log("🚀 ~ signUpHandler ~ state:", state);
+
     if (name.trim().length < 7)
       return dispatch({
         type: SignUpActions.SET_ERROR,
-        payload: {
-          status: true,
-          message: "User full name can't be less that 7 characters!",
-          type: SignUpActions.SET_NAME,
-        },
+        payload: new SignUpError(
+          SignUpActions.SET_NAME,
+          "User full name can't be less that 7 characters!",
+          true
+        ),
       });
     if (!/\b\D+\w*@gmail.com/.test(email) || !email)
       return dispatch({
         type: SignUpActions.SET_ERROR,
-        payload: {
-          status: true,
-          message: "Please provide valid email!",
-          type: SignUpActions.SET_EMAIL,
-        },
+
+        payload: new SignUpError(
+          SignUpActions.SET_EMAIL,
+          "Please provide valid email!",
+          true
+        ),
       });
+
     if (!profile)
       return dispatch({
         type: SignUpActions.SET_ERROR,
-        payload: {
-          status: true,
-          message: "Please provide profile!",
-          type: SignUpActions.SET_PROFILE,
-        },
+
+        payload: new SignUpError(
+          SignUpActions.SET_PROFILE,
+          "Please provide profile!",
+          true
+        ),
       });
     if (password.trim().length < 6)
       return dispatch({
         type: SignUpActions.SET_ERROR,
-        payload: {
-          status: true,
-          message: "Please provide strong password greater than 5 symbols!",
-          type: SignUpActions.SET_PASSWORD,
-        },
+        payload: new SignUpError(
+          SignUpActions.SET_PASSWORD,
+          "Please provide strong password greater than 5 symbols!",
+          true
+        ),
       });
     if (password !== confirmPassword)
       return dispatch({
         type: SignUpActions.SET_ERROR,
-        payload: {
-          status: true,
-          message: "Please confirm your password",
-          type: SignUpActions.SET_CONFIRM_PASSWORD,
-        },
+
+        payload: new SignUpError(
+          SignUpActions.SET_CONFIRM_PASSWORD,
+          "Please confirm your password",
+          true
+        ),
       });
 
-    const user: Omit<IUser, "_id"> & { password: string } = {
-      name,
-      email,
-      profile,
-      password,
-    };
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("email", email);
+    formData.append("profile", profile);
+    formData.append("password", password);
+
+    console.log("🚀 ~ signUpHandler ~ formData:", formData);
 
     try {
       setAsyncState(ASYNC_STATE.LOADING);
       const response = await axios.post(
         "http://localhost:5050/api/v1/users/sign-up",
-        user
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
       const {
         data: { user: userData },
@@ -234,11 +248,7 @@ const SignUp = () => {
             onInputChangeHandler={(value: string) => {
               dispatch({
                 type: SignUpActions.SET_ERROR,
-                payload: {
-                  status: false,
-                  message: "",
-                  type: undefined,
-                },
+                payload: new SignUpError(undefined, "", false),
               });
               dispatch({ type: SignUpActions.SET_NAME, payload: value });
             }}
@@ -265,11 +275,7 @@ const SignUp = () => {
             onInputChangeHandler={(value: string) => {
               dispatch({
                 type: SignUpActions.SET_ERROR,
-                payload: {
-                  status: false,
-                  message: "",
-                  type: undefined,
-                },
+                payload: new SignUpError(undefined, "", false),
               });
               dispatch({ type: SignUpActions.SET_EMAIL, payload: value });
             }}
@@ -300,11 +306,7 @@ const SignUp = () => {
             onInputChangeHandler={(value: string) => {
               dispatch({
                 type: SignUpActions.SET_ERROR,
-                payload: {
-                  status: false,
-                  message: "",
-                  type: undefined,
-                },
+                payload: new SignUpError(undefined, "", false),
               });
               dispatch({ type: SignUpActions.SET_PASSWORD, payload: value });
             }}
@@ -334,11 +336,7 @@ const SignUp = () => {
             onInputChangeHandler={(value: string) => {
               dispatch({
                 type: SignUpActions.SET_ERROR,
-                payload: {
-                  status: false,
-                  message: "",
-                  type: undefined,
-                },
+                payload: new SignUpError(undefined, "", false),
               });
               dispatch({
                 type: SignUpActions.SET_CONFIRM_PASSWORD,
@@ -347,10 +345,22 @@ const SignUp = () => {
             }}
           />
 
-          <AvatorPicker
-            onAvatorPick={(avator: string) =>
-              dispatch({ type: SignUpActions.SET_PROFILE, payload: avator })
+          <ImageUploader
+            initial={state.profile}
+            id="Upload Profile"
+            labelText={
+              state.error.status &&
+              state.error.type === SignUpActions.SET_PROFILE
+                ? state.error.message
+                : "User Profile[Optional]"
             }
+            imageUploadHandler={(file) => {
+              dispatch({
+                type: SignUpActions.SET_ERROR,
+                payload: new SignUpError(undefined, "", false),
+              });
+              dispatch({ type: SignUpActions.SET_PROFILE, payload: file });
+            }}
           />
 
           <div className="mt-4">

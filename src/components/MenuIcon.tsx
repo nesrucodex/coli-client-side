@@ -5,7 +5,7 @@ type IProp = {
 
 const MenuIcon = ({ showOptionsHandler, showOptions }: IProp) => {
   return (
-    <div className="sm:hidden">
+    <div className="">
       <ul
         className="flex flex-col gap-1 transition-all duration-200 hover:scale-[1.1] active:scale-1 cursor-pointer"
         onClick={() => showOptionsHandler(undefined)}

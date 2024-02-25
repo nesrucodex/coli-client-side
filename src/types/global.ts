@@ -25,12 +25,10 @@ export interface ITodoComment {
 }
 
 export interface ITodo {
-  id: string;
+  _id: string;
   content: string;
   createdAt: Date;
-  deadLine: Date;
-  status: TaskStatus;
-  comments: ITodoComment[];
+  status: "CREATED" | "TODO" | "IN PROGRESS" | "COMPLETED" | "APPROVED";
 }
 export interface IUser {
   _id: string;
@@ -47,5 +45,5 @@ export interface ITeam {
   bio?: string;
   profile?: string;
   members: IUser[];
-  possibleMembers?: string[];
+  todos: ITodo[];
 }
