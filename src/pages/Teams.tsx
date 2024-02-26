@@ -5,7 +5,7 @@ import TeamItem from "../components/Teams/TeamItem";
 import Hline from "../components/Hline";
 import axios, { AxiosError } from "axios";
 import { ITeam } from "../types/global";
-import { TeamBox } from "./TeamBox";
+import { TeamBox } from "../components/TeamBox";
 
 const Teams = () => {
   const [showTeamCreator, setShowTeamCreator] = useState(false);

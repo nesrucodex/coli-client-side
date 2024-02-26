@@ -1,12 +1,3 @@
-export enum TaskStatus {
-  CREATED,
-  TODO,
-  PROGRESS,
-  DONE,
-  APPROVED,
-  DISAPPROVED,
-}
-
 export enum ASYNC_STATE {
   IDEL,
   LOADING,
@@ -27,8 +18,9 @@ export interface ITodoComment {
 export interface ITodo {
   _id: string;
   content: string;
+  status: string;
+  assignee?: IUser;
   createdAt: Date;
-  status: "CREATED" | "TODO" | "IN PROGRESS" | "COMPLETED" | "APPROVED";
 }
 export interface IUser {
   _id: string;
@@ -42,7 +34,6 @@ export interface ITeam {
   creator: IUser;
   name: string;
   description?: string;
-  bio?: string;
   profile?: string;
   members: IUser[];
   todos: ITodo[];
