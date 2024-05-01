@@ -1,4 +1,4 @@
-import { ITeam, ITodo } from "../types/global";
+import { IComment, ITeam, ITodo } from "../types/global";
 import { TODO_STATUS } from "../constants/data";
 import { Droppable, Draggable } from "react-beautiful-dnd";
 import { TodoComment } from "./TodoComment";
@@ -10,6 +10,8 @@ type ITodoStatusComponent = {
   width?: string;
   statusId: string;
   todos: ITodo[];
+  comments: IComment[];
+  setTeamComments: React.Dispatch<React.SetStateAction<IComment[]>>;
 };
 export const TodoStatusComponent = ({
   header,
@@ -17,6 +19,8 @@ export const TodoStatusComponent = ({
   width = "2rem",
   todos,
   team,
+  comments,
+  setTeamComments,
 }: ITodoStatusComponent) => {
   return (
     <div className="">
@@ -32,7 +36,7 @@ export const TodoStatusComponent = ({
           <div
             ref={provided.innerRef}
             {...provided.droppableProps}
-            className={`relative z-[9] min-w-[25rem] max-w-[30rem] min-h-[16rem] rounded-sm drop-shadow ${
+            className={`min-w-[25rem] max-w-[30rem] min-h-[16rem] rounded-sm drop-shadow ${
               snapShot.isDraggingOver
                 ? "ring-2 ring-sky-500 bg-sky-200"
                 : "bg-gray-100/90 border-b-[.15rem] border-b-slate-50 gap-[.15rem]"
@@ -44,7 +48,7 @@ export const TodoStatusComponent = ({
                   <section
                     {...provided.draggableProps}
                     ref={provided.innerRef}
-                    className={`relative  bg-white px-2 py-2 rounded-sm mb-1 ${
+                    className={`bg-white px-2 py-2 rounded-sm mb-1 ${
                       snapShot.isDragging
                         ? "ring-2 ring-sky-500 z-[9999]"
                         : "drop-shadow"
@@ -58,15 +62,15 @@ export const TodoStatusComponent = ({
                         </h2>
                       </div>
                     </div>
-                    {/* <div
-                      className="line-clamp-3 mt-2"
-                      key={todo._id}
-                      dangerouslySetInnerHTML={{ __html: todo.content }}
-                    /> */}
-                    <TodoBox content={todo.content} />
 
+                    <TodoBox content={todo.content} />
                     {todo.status !== TODO_STATUS.CREATED && (
-                      <TodoComment team={team} />
+                      <TodoComment
+                        team={team}
+                        todo={todo}
+                        comments={comments}
+                        setTeamComments={setTeamComments}
+                      />
                     )}
                   </section>
                 )}

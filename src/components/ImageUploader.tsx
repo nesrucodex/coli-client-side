@@ -7,12 +7,14 @@ type IImageUploader = {
   id: string;
   labelText: string;
   initial: File | null;
+  initalPath?: string;
   imageUploadHandler?: (file: File) => void;
 };
 const ImageUploader = ({
   id,
   labelText,
   initial,
+  initalPath = "",
   imageUploadHandler,
 }: IImageUploader) => {
   const [image, setImage] = useState({
@@ -47,10 +49,13 @@ const ImageUploader = ({
       </InputLabel>
       <input type="file" className="hidden" id={id} onChange={onImageUpload} />
 
-      {image.src && (
+      {(image.src || initalPath !== "") && (
         <div className="absolute top-0 right-0 size-[5rem]">
           <img
-            src={image.src}
+            src={
+              image.src ||
+              `http://localhost:5050/uploads/teams/profiles/${initalPath}`
+            }
             className="w-full aspect-[1/1] rounded-full object-cover ring-4 ring-slate-600 ring-offset-[.15rem] border-[.1rem]"
             alt="profile"
           />

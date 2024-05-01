@@ -1,14 +1,58 @@
 import { useState } from "react";
-import { ITeam } from "../types/global";
-import { FaTelegramPlane } from "react-icons/fa";
+import { IComment, ITeam, ITodo } from "../types/global";
+
 import { MdArrowDropDown, MdArrowDropUp } from "react-icons/md";
+import AdvancedEditor from "./Froala/AdvancedEditor";
+import { useSelector } from "react-redux";
+import { RootState } from "../hooks/store";
+import axios, { AxiosError } from "axios";
+import { BACKEND_URL } from "../constants/data";
+import { CommentMessage } from "./CommentMessage";
 
 type ITodoComment = {
   team: ITeam;
+  todo: ITodo;
+  comments: IComment[];
+  setTeamComments: React.Dispatch<React.SetStateAction<IComment[]>>;
 };
 
-export const TodoComment = ({ team }: ITodoComment) => {
+export const TodoComment = ({
+  team,
+  todo,
+  comments,
+  setTeamComments,
+}: ITodoComment) => {
   const [showTodoComment, setShowTodoComment] = useState(false);
+  const [commentContent, setCommentContent] = useState("comment...");
+  const [reply, setReply] = useState<IComment | undefined>(undefined);
+  const user = useSelector((state: RootState) => state.user);
+
+  const postCommentHandler = async () => {
+    const comment = {
+      content: commentContent,
+      sender: user._id,
+      todoId: todo._id,
+      teamId: team._id,
+      reply,
+    };
+
+    const token = localStorage.getItem("token");
+    if (!token) return;
+    try {
+      const response = await axios.post(`${BACKEND_URL}/comments`, comment, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = response.data;
+
+      setTeamComments((prev) => [...prev, data.data.comment]);
+    } catch (err) {
+      if (err instanceof AxiosError) console.warn(err.response?.data);
+    }
+  };
+
   return (
     <div className="flex flex-col border-t-[.05rem] mt-3">
       <button
@@ -21,39 +65,57 @@ export const TodoComment = ({ team }: ITodoComment) => {
       {showTodoComment && (
         <section className="">
           {/* // ! COMMENTS  */}
-          <div className="flex flex-col gap-4 max-h-[20rem] overflow-y-scroll scroll-bar-none px-1 py-2">
-            {team.members.map((user) => (
-              // ! COMMENT
-              <div
-                key={user._id}
-                className=" flex `flex-row-reverse` items-start gap-4 pr-2"
-              >
-                <img
-                  className="rounded-full size-[2.5rem] ring-1 ring-slate-200"
-                  src={`http://localhost:5050/uploads/users/profiles/${user.profile}`}
-                  alt="profile"
+          <div className="flex flex-col gap-[1.8rem] max-h-[20rem] overflow-y-scroll scroll-bar-none px-1 py-2">
+            {comments
+              .filter((comment) => comment.todo._id === todo._id)
+              .map((comment) => (
+                // ! COMMENT
+                <CommentMessage
+                  key={comment._id}
+                  comment={comment}
+                  reply={reply}
+                  setReply={setReply}
+                  user={user}
                 />
-                <p className="text-[.88rem] bg-blue-100 py-2 pl-2 pr-3 rounded-md flex flex-col">
-                  <span className="text-slate-800 ">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Culpa, facilis. Repudiandae ipsum ?
-                  </span>
-                  <span className="self-end text-[.7rem] font-semibold text-slate-600">
-                    12/12/34
-                  </span>
-                </p>
-              </div>
-            ))}
+              ))}
           </div>
-          <form className="flex">
-            <input
-              className="resize-none outline-none w-full px-1 py-2 bg-gray-50 font-semibold placeholder:font-normal text-slate-700 text-sm border-b-[.1rem] border-b-slate-200 translation-all duration-300  hover:border-b-slate-400  focus:border-b-slate-400 pr-1"
-              placeholder=" Write comment..."
+          <div className="flex flex-col mt-4 border-t-[.05rem] border-b-gray-100 pt-2">
+            {reply && (
+              <div className="text-sm text-slate-700 mb-2 bg-sky-50 px-3 py-2 rounded-md">
+                <span>
+                  Your are replying to{" "}
+                  <span className="font-semibold text-slate-700">
+                    `{reply.sender.name}`
+                  </span>{" "}
+                  on the message:
+                </span>{" "}
+                <div
+                  className="italic"
+                  dangerouslySetInnerHTML={{
+                    __html:
+                      reply.content.split(" ").length > 4
+                        ? reply.content.split(" ").slice(0, 4).join(" ") + "..."
+                        : reply.content,
+                  }}
+                />
+              </div>
+            )}
+            <AdvancedEditor
+              initial={commentContent}
+              onTextareaChangeHandler={(content: string) => {
+                setCommentContent(content);
+              }}
+              wMax="24rem"
+              hMin={100}
+              hMax={150}
             />
-            <button className="text-2xl w-[3rem] grid place-items-center translation-all duration-200 text-slate-700 hover:text-slate-700/90 active:text-slate-700">
-              <FaTelegramPlane />
+            <button
+              className="font-semibold text-white tracking-wide bg-slate-600 py-[.37rem] rounded-sm mt-1 duration-200 transition-all hover:bg-slate-600/95  active:bg-slate-600"
+              onClick={postCommentHandler}
+            >
+              Post Comment
             </button>
-          </form>
+          </div>
         </section>
       )}
     </div>

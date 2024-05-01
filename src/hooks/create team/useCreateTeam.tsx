@@ -6,12 +6,13 @@ export const enum CreateTeamActions {
   SET_DESCRIPTION,
   SET_ERROR,
   CLEAR_DATA,
+  SET_TEAM,
 }
 
 type ITeam = {
   name: string;
   profile: File | null;
- 
+
   description: string;
   error: {
     type: CreateTeamActions | undefined;
@@ -21,7 +22,7 @@ type ITeam = {
 const initial: ITeam = {
   name: "",
   profile: null,
- 
+
   description: "",
   error: {
     type: undefined,
@@ -51,6 +52,10 @@ const reducer = (
       const description = action.payload;
       if (typeof description !== "string") return state;
       return { ...state, description };
+    case CreateTeamActions.SET_TEAM:
+      const inital = action.payload;
+      if (typeof inital === "string") return state;
+      return { ...state, ...inital, profile: null };
     case CreateTeamActions.CLEAR_DATA:
       return initial;
     case CreateTeamActions.SET_ERROR:

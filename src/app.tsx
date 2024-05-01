@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import {  Route, Routes } from "react-router-dom";
 
 import Layout from "./components/Layout";
 import Teams from "./pages/Teams";
@@ -41,6 +41,7 @@ const App = () => {
 
     getUser();
   }, [userDispatch]);
+
   return (
     <main className="relative">
       <Routes>

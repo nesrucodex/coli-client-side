@@ -1,10 +1,12 @@
-import { FaMinus, FaPlus } from "react-icons/fa";
-import { IUser } from "../types/global";
+import { FaHourglass, FaMinus, FaPlus } from "react-icons/fa";
+import { IMemberStatus, IUser } from "../types/global";
+import { MEMBER_STATUS } from "../constants/data";
 
 type TeamMemberProps = {
   user: IUser;
   showAddBtn: boolean;
   showRemoveBtn: boolean;
+  memberStatus: IMemberStatus;
   onAddMember: (user: IUser) => void;
   onRemoveMember: (user: IUser) => void;
 };
@@ -14,6 +16,7 @@ export const TeamMember = ({
   showAddBtn,
   showRemoveBtn,
   onRemoveMember,
+  memberStatus,
 }: TeamMemberProps) => {
   return (
     <div className="relative flex items-center gap-3 py-2">
@@ -42,10 +45,18 @@ export const TeamMember = ({
       )}
       {showRemoveBtn && (
         <button
-          className="absolute right-1 font-extrabold text-md text-red-600 transition-all duration-200 hover:scale-[1.1] active:scale-[1]"
+          className="absolute right-1 font-extrabold text-md  transition-all duration-200 hover:scale-[1.1] active:scale-[1]"
           onClick={() => onRemoveMember(user)}
         >
-          <FaMinus />
+          {memberStatus === MEMBER_STATUS.MEMBER ? (
+            <span className="text-red-600">
+              <FaMinus />
+            </span>
+          ) : (
+            <span className="text-slate-600">
+              <FaHourglass />
+            </span>
+          )}
         </button>
       )}
     </div>
